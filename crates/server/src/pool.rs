@@ -61,6 +61,7 @@ async fn init_pool(_database_url: String) {
 
 #[cfg(not(any(feature = "postgres", feature = "sqlite")))]
 async fn init_pool(database_url: String) {
+    sqlx::any::install_default_drivers();
     let pool = match AnyPoolOptions::new()
         .max_connections(100)
         .idle_timeout(Some(Duration::from_millis(1000)))
