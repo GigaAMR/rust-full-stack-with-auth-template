@@ -105,7 +105,7 @@ pub async fn login_user(user: LoginUser) -> Result<UserInfo, AuthError>  {
 pub async fn reset_user(user: ResetUser, key: String) -> Result<StatusCode, AuthError> {
     let request_result = get_http_client().post(get_base_url() + &format!("/auth/reset/{key}")).json(&user).send().await;
     if let Err(error) = request_result {
-        error!("Error with request: {}", error.to_string());
+        error!(format!("Error with request: {}", error.to_string()));
         return Err(AuthError::default());
     }
 
@@ -124,9 +124,9 @@ pub async fn reset_user(user: ResetUser, key: String) -> Result<StatusCode, Auth
 }
 
 pub async fn request_reset(email: String) -> Result<StatusCode, AuthError> {
-    let request_result = get_http_client().post(get_base_url() + "auth/reset").body(email).send().await;
+    let request_result = get_http_client().post(get_base_url() + "/auth/reset").body(email).send().await;
     if let Err(error) = request_result {
-        error!("Error with request: {}", error.to_string());
+        error!(format!("Error with request: {}", error.to_string()));
         return Err(AuthError::default());
     }
 
