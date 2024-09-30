@@ -78,6 +78,8 @@ sqlx migrate revert --source migrations/sqlite
 Required environment variables, these can be stored in a .env file at the top level of the repository if not set as OS environment variables.
 
 ```bash
+# Base URL for the frontend to communicate with the API, by default TLS is not enabled and will require you to implement
+BASE_URL="http:/localhost:3001"
 # Database URL, SQLx will infer the database type by URL if not specifying with package feature
 DATABASEURL=
 # 16 byte salt

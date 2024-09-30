@@ -1,9 +1,9 @@
-use std::str::FromStr;
+use std::{env, str::FromStr};
 
 use gloo_console::error;
 use gloo_storage::{Storage, errors::StorageError};
 use once_cell::sync::OnceCell;
-use reqwest::{header::{HeaderMap, AUTHORIZATION}, Client, RequestBuilder, Response, StatusCode};
+use reqwest::{header::{HeaderMap, AUTHORIZATION}, Client, RequestBuilder, Response, StatusCode, Url};
 use types::auth::{AuthErrorBody, AuthErrorType, AuthToken};
 
 
@@ -11,8 +11,11 @@ pub mod auth;
 pub mod user;
 
 static HTTP_CLIENT: OnceCell<Client> = OnceCell::new();
+static BASE_URL: OnceCell<String> = OnceCell::new();
 
 pub fn create_http_clients() {
+    let base_url = env::var("BASE_URL").unwrap_or("http://localhost:3001".to_string());
+    BASE_URL.set(base_url).unwrap();
     HTTP_CLIENT.set(Client::builder()
     .build()
     .unwrap()).unwrap();
@@ -20,6 +23,10 @@ pub fn create_http_clients() {
 
 pub fn get_http_client() -> Client {
     HTTP_CLIENT.get().unwrap().to_owned()
+}
+
+pub fn get_base_url() -> String {
+    BASE_URL.get().unwrap().to_owned()
 }
 #[derive(Debug)]
 pub struct AuthRequest {
@@ -48,7 +55,7 @@ impl AuthRequest {
     
         // Build request for retrieving valid token with access information
         let request_builder = get_http_client()
-            .get("http://localhost:3001/auth/request")
+            .get(get_base_url() + "/auth/request")
             .bearer_auth(auth_token.to_string());
         let request_result = request_builder.send().await;
         if let Err(error) = request_result {
