@@ -1,9 +1,7 @@
-use std::str::FromStr;
-
 use gloo_console::{error, log};
 
-use reqwest::{header::AUTHORIZATION, Method, StatusCode, Url};
-use types::{auth::{AuthErrorType, AuthToken}, user::{LoginUser, RegisterUser, ResetUser, UserInfo}};
+use reqwest::StatusCode;
+use types::user::{LoginUser, RegisterUser, ResetUser, UserInfo};
 
 use super::{get_http_client, AuthError, AuthRequest, AuthStorage};
 
@@ -34,51 +32,6 @@ pub async fn test_auth_route() -> Result<StatusCode, AuthError> {
         log!(format!("{text}"));
         Ok(status)
     }
-}
-
-pub async fn request_auth_token() -> Result<StatusCode, AuthError> {
-    // Build auth header from token
-    let auth_token_result = AuthStorage::get_requester_token();
-    if let Err(_) = &auth_token_result {
-        error!("Error getting token from storage!");
-        return Err(AuthError::from_error_type(AuthErrorType::InvalidToken))
-    }
-    let auth_token = auth_token_result.unwrap();
-
-    // Build request for retrieving valid token with access information
-    let request_builder = get_http_client()
-        .request(Method::GET, Url::from_str("http://localhost:3001/auth/request").unwrap())
-        .bearer_auth(auth_token.to_string());
-    let request_result = request_builder.send().await;
-    if let Err(error) = request_result {
-        error!("Error with request: {}", error.to_string());
-        return Err(AuthError::default());
-    }
-
-    // Unwrap response from request_result
-    let response = request_result.unwrap();
-
-    // Get status and match for responsive behavior
-    let status = response.status();
-
-    // Check if status is success
-    if !status.is_success() {
-        error!("Status is not success!");
-        return Err(AuthError::from_response(response).await);
-    }
-
-    // Extract auth header from headers
-    let headers = response.headers();
-    let auth_header_result = headers.get(AUTHORIZATION);
-    if let None = auth_header_result {
-        return Err(AuthError::from_error_type(AuthErrorType::TokenCreation));
-    }
-    let header = auth_header_result.unwrap();
-    let header_str = header.to_str().unwrap_or("");
-
-    // Store auth token
-    AuthStorage::store_auth_token(AuthToken::from_string(header_str.to_string()));
-    Ok(status)
 }
 
 pub async fn register_user(user: RegisterUser) -> Result<UserInfo, AuthError> {

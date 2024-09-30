@@ -4,7 +4,7 @@ use types::user::UserInfo;
 use super::{get_http_client, AuthRequest};
 
 pub async fn get_user_info() -> UserInfo {
-    let request_builder = AuthRequest::new(get_http_client()
+    let mut request_builder = AuthRequest::new(get_http_client()
         .request(Method::GET, Url::parse("http://localhost:3001/user/info").unwrap()));
 
     // Request user info from server
@@ -27,7 +27,7 @@ pub async fn get_user_info() -> UserInfo {
 }
 
 pub async fn get_all_users() -> Result<(StatusCode, Vec<UserInfo>), StatusCode> {
-    let request_result = AuthRequest::new(get_http_client()
+    let mut request_result = AuthRequest::new(get_http_client()
         .request(Method::GET, Url::parse("http://localhost:3001/user/all").unwrap()));
     // Unwrap request and extract status as owned value
     let response = request_result.send().await;
@@ -49,7 +49,7 @@ pub async fn get_all_users() -> Result<(StatusCode, Vec<UserInfo>), StatusCode> 
 }
 
 pub async fn delete_user(uuid: String) -> Result<StatusCode, StatusCode> {
-    let request = AuthRequest::new(get_http_client()
+    let mut request = AuthRequest::new(get_http_client()
     .delete("http://localhost:3001/user")
     .body(uuid));
     // Request to delete user with uuid

@@ -1,6 +1,5 @@
 use std::str::FromStr;
 
-use auth::request_auth_token;
 use gloo_console::error;
 use gloo_storage::{Storage, errors::StorageError};
 use once_cell::sync::OnceCell;
@@ -39,35 +38,73 @@ impl AuthRequest {
             request_builder
         }
     }
-    async fn refresh_token(&self) -> Result<Self, AuthError> {
-        let auth_request_result = request_auth_token().await;
+    async fn request_auth_token() -> Result<StatusCode, AuthError> {
+        // Build auth header from token
+        let auth_token_result = AuthStorage::get_requester_token();
+        if let Err(_) = &auth_token_result {
+            return Err(AuthError::from_error_type(AuthErrorType::InvalidToken))
+        }
+        let auth_token = auth_token_result.unwrap();
+    
+        // Build request for retrieving valid token with access information
+        let request_builder = get_http_client()
+            .get("http://localhost:3001/auth/request")
+            .bearer_auth(auth_token.to_string());
+        let request_result = request_builder.send().await;
+        if let Err(error) = request_result {
+            error!("Error with request: {}", error.to_string());
+            return Err(AuthError::default());
+        }
+    
+        // Unwrap response from request_result
+        let response = request_result.unwrap();
+    
+        // Get status and match for responsive behavior
+        let status = response.status();
+    
+        // Check if status is success
+        if !status.is_success() {
+            return Err(AuthError::from_response(response).await);
+        }
+    
+        // Extract auth header from headers
+        let headers = response.headers();
+        let auth_header_result = headers.get(AUTHORIZATION);
+        if let None = auth_header_result {
+            return Err(AuthError::from_error_type(AuthErrorType::TokenCreation));
+        }
+        let header = auth_header_result.unwrap();
+        let header_str = header.to_str().unwrap_or("");
+    
+        // Store auth token
+        AuthStorage::store_auth_token(AuthToken::from_string(header_str.to_string()));
+        Ok(status)
+    }
+    
+    async fn refresh_token(&mut self) -> Result<(), AuthError> {
+        let auth_request_result = AuthRequest::request_auth_token().await;
         if let Err(auth_error) = auth_request_result {
-            error!("Error requesting token!");
             return Err(auth_error);
         }
         let token = AuthStorage::get_auth_token();
         if let Err(_storage_error) = token {
-            error!("Error getting from storage!");
             return Err(AuthError::from_error_type(AuthErrorType::InvalidToken));
         }
-        Ok(Self {
-            token: token.unwrap(),
-            request_builder: self.request_builder.try_clone().unwrap()
-        })
-
+        self.token = token.unwrap();
+        Ok(())
     }
-    pub async fn send(&self) -> Result<Response, AuthError> {
+    pub async fn send(&mut self) -> Result<Response, AuthError> {
         let refresh_result = self.refresh_token().await;
         if let Err(refresh_error) = refresh_result {
             return Err(refresh_error);
         }
-        let auth_request_result  = self.request_builder.try_clone().unwrap()
+        let response  = self.request_builder.try_clone().unwrap()
             .bearer_auth(self.token.clone().to_string())
             .send().await;
-        if let Err(_error) = auth_request_result {
+        if let Err(_error) = response {
             return Err(AuthError::from_error_type(AuthErrorType::BadRequest));
         }
-        Ok(auth_request_result.unwrap())
+        Ok(response.unwrap())
     }
 }
 
