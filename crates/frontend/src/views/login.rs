@@ -1,6 +1,6 @@
 use yew::prelude::*;
+use yew_router::history::BrowserHistory;
 use yew_router::history::History;
-use yew_router::history::HashHistory;
 use yew_router::prelude::*;
 
 use crate::app::AppRoute;
@@ -13,7 +13,7 @@ pub fn login() -> Html {
 
     use_effect(move || {
         if user_info.uuid != String::new() {
-            HashHistory::new().push("/")
+            BrowserHistory::new().push("/")
         }
     });
 

@@ -1,31 +1,11 @@
-use gloo_console::error;
-use reqwest::{header::{HeaderMap, HeaderValue, AUTHORIZATION}, Method, StatusCode, Url};
+use reqwest::{Method, StatusCode, Url};
 use types::user::UserInfo;
 
-use super::{get_http_auth_client, get_http_client, AuthStorage};
+use super::{get_http_client, AuthRequest};
 
 pub async fn get_user_info() -> UserInfo {
-    // Attempt to get auth requester token from storage
-    let auth_token_result = AuthStorage::get_requester_token();
-    if let Err(_) = auth_token_result {
-        return UserInfo::new();
-    }
-    let auth_token = auth_token_result.unwrap();
-
-    // Build auth header from token
-    let auth_header_result = HeaderValue::from_str(auth_token.to_string().as_str());
-    if let Err(error) = auth_header_result {
-        error!("Could not create header from token: {}", error.to_string());
-        return UserInfo::new();
-    }
-    let auth_header = auth_header_result.unwrap();
-
-    // Build request using header map with auth header
-    let mut header_map = HeaderMap::new();
-    header_map.insert(AUTHORIZATION, auth_header);
-    let request_builder = get_http_client()
-        .request(Method::GET, Url::parse("http://localhost:3001/user/info").unwrap())
-        .headers(header_map);
+    let request_builder = AuthRequest::new(get_http_client()
+        .request(Method::GET, Url::parse("http://localhost:3001/user/info").unwrap()));
 
     // Request user info from server
     let request_result = request_builder.send().await;
@@ -47,15 +27,14 @@ pub async fn get_user_info() -> UserInfo {
 }
 
 pub async fn get_all_users() -> Result<(StatusCode, Vec<UserInfo>), StatusCode> {
-    // Request all users from server
-    let request_result = get_http_auth_client().get("http://localhost:3001/user/all").send().await;
-    if let Err(error) = request_result {
-        error!("Error with request: {}", error.to_string());
-        return Err(error.status().unwrap());
-    }
-
+    let request_result = AuthRequest::new(get_http_client()
+        .request(Method::GET, Url::parse("http://localhost:3001/user/all").unwrap()));
     // Unwrap request and extract status as owned value
-    let response = request_result.unwrap();
+    let response = request_result.send().await;
+    if let Err(_) = response {
+        return Err(StatusCode::UNAUTHORIZED)
+    }
+    let response = response.unwrap();
     let status = response.status();
 
     // Parse body as JSON
@@ -70,11 +49,13 @@ pub async fn get_all_users() -> Result<(StatusCode, Vec<UserInfo>), StatusCode> 
 }
 
 pub async fn delete_user(uuid: String) -> Result<StatusCode, StatusCode> {
+    let request = AuthRequest::new(get_http_client()
+    .delete("http://localhost:3001/user")
+    .body(uuid));
     // Request to delete user with uuid
-    let request_result = get_http_auth_client().delete("http://localhost:3001/user").body(uuid).send().await;
-    if let Err(error) = request_result {
-        error!("Error with request: {}", error.to_string());
-        return Err(error.status().unwrap());
+    let request_result = request.send().await;
+    if let Err(_) = request_result {
+        return Err(StatusCode::UNAUTHORIZED);
     }
 
     // Unwrap request and extract status as owned value
