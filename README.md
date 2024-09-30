@@ -91,7 +91,13 @@ AUTH_TOKEN_SECRET=THISISABADSECRET
 # Company name to set as the Iss claim in JWTs
 COMPANY_NAME=PanuccisPizza
 # Company domain to set as the Aud claim in JWTs
-COMAPNY_DOMAIN=pannucispizza.slice
+COMPANY_DOMAIN=pannucispizza.slice
+# Host for mail server to serve password reset emails
+SMTP_HOST=mailserver.example.io
+# Username for account on mailserver to auth
+SMTP_USERNAME=mail_username
+# Password for account on mailserver to auth
+SMTP_PASSWORD=mail_password
 ```
 
 ## Contribute
