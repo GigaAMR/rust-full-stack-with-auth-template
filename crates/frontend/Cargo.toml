@@ -8,11 +8,11 @@ edition = "2021"
 [dependencies]
 log = "0.4"
 serde = { version = "1.0.193", features = ["derive"] }
-serde_json = "1.0.114"
-yew = { version = "0.20.0", features = ["csr"] }
-yewdux = "0.9.3"
-yew-router = "0.17.0"
-yew-hooks = "0.2.0"
+serde_json = "1.0.128"
+yew = { version = "0.21.0", features = ["csr"] }
+yewdux = "0.10.0"
+yew-router = "0.18"
+yew-hooks = "0.3.2"
 wasm-bindgen = "0.2"
 wasm-bindgen-futures = "0.4"
 wasm-logger = "0.2.0"
@@ -22,11 +22,9 @@ tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", features = 
 types = { path = "../types" }
 gloo-storage = "0.3.0"
 gloo-console = "0.3.0"
-gloo-net = "0.5.0"
-reqwest = { version = "0.11.26", features = ["json"] }
+gloo-net = "0.6.0"
+reqwest = { version = "0.12.6", features = ["json"] }
 http = "1.1.0"
-once_cell = "1.19.0"
-reqwest-middleware = "0.2.4"
-task-local-extensions = "0.1.4"
-async-trait = "0.1.77"
-email_address = "0.2.4"
+once_cell = "1.20.1"
+async-trait = "0.1.83"
+email_address = "0.2.9"
