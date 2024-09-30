@@ -47,7 +47,7 @@ pub fn app() -> Html {
     let _user_info = use_user_info();
 
     html! {
-        <HashRouter>
+        <BrowserRouter>
             <body class="flex flex-col space-between w-screen h-screen bg-slate-50 dark:bg-slate-700 overflow-hidden">
                 <Header />
                 <main class="grid grid-rows-24 grid-cols-12 auto-rows-auto h-full w-full py-12">
@@ -55,6 +55,6 @@ pub fn app() -> Html {
                 </main>
                 <Footer />
             </body>
-        </HashRouter>
+        </BrowserRouter>
     }
 }

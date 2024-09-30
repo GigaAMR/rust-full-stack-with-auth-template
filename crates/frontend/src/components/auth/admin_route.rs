@@ -1,5 +1,5 @@
 use yew::{html::ChildrenRenderer, prelude::*, virtual_dom::VNode};
-use yew_router::history::{History, HashHistory};
+use yew_router::history::{History, BrowserHistory};
 use crate::hooks::use_user_info;
 
 #[derive(Properties, PartialEq)]
@@ -13,7 +13,7 @@ pub fn admin_route(props: &Props) -> Html {
 
     use_effect(move || {
         if user_info.uuid == String::new() || !user_info.is_admin  {
-            HashHistory::new().push("/login");
+            BrowserHistory::new().push("/login");
         }
     });
 

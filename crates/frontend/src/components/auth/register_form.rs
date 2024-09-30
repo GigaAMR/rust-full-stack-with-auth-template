@@ -3,7 +3,7 @@ use web_sys::HtmlInputElement;
 use yew::{function_component, html, use_state, Callback, Html, InputEvent, SubmitEvent, TargetCast, UseStateHandle};
 use yew_hooks::use_async;
 use gloo_console::error;
-use yew_router::history::{History, HashHistory};
+use yew_router::history::{History, BrowserHistory};
 use yewdux::prelude::*;
 
 use crate::{components::{buttons::button::Button, error_message::ErrorMessage, input::Input}, hooks::StoredUserInfo, services::{self, AuthError}};
@@ -40,7 +40,7 @@ pub fn register_form() -> Html {
                 Ok(user_info) => {
                     user_dispatch.set(StoredUserInfo {user_info: user_info.clone()});
                     register_user.set(RegisterUser::default());
-                    HashHistory::new().push("/login");
+                    BrowserHistory::new().push("/login");
                     Ok(user_info)
                 },
                 Err(error) => {

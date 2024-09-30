@@ -6,7 +6,7 @@ use yew::{function_component, html, use_state, Callback, Html, InputEvent, Submi
 use yew_hooks::use_async;
 
 use yew_router::history::History;
-use yew_router::history::HashHistory;
+use yew_router::history::BrowserHistory;
 use yewdux::prelude::*;
 
 use crate::components::error_message::ErrorMessage;
@@ -46,7 +46,7 @@ pub fn login_form() -> Html {
                 Ok(user_info) => {
                     user_dispatch.set(StoredUserInfo {user_info: user_info.clone()});
                     login_user.set(LoginUser::default());
-                    HashHistory::new().push("/");
+                    BrowserHistory::new().push("/");
                     Ok(user_info)
                 },
                 Err(error) => {

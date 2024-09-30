@@ -1,7 +1,7 @@
 use web_sys::HtmlInputElement;
 use yew::{function_component, html, use_state, Callback, Html, InputEvent, SubmitEvent, TargetCast, UseStateHandle};
 use yew_hooks::use_async;
-use yew_router::history::{HashHistory, History};
+use yew_router::history::{BrowserHistory, History};
 
 use crate::{components::{buttons::button::Button, error_message::ErrorMessage, input::Input}, services::{self, AuthError, AuthStorage}};
 
@@ -32,7 +32,7 @@ pub fn request_reset_form() -> Html {
                 Ok(status) => {
                     reset_email.set(String::new());
                     AuthStorage::clear();
-                    HashHistory::new().push("/login");
+                    BrowserHistory::new().push("/login");
                     Ok(status)
                 },
                 Err(error) => {
