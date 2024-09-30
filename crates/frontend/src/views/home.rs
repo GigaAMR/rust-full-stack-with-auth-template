@@ -18,7 +18,7 @@ pub fn home() -> Html {
                     <p>{"This project is built to make full stack development with user authentication easily accessible for developers within an entirely Rust ecosystem."}</p>
                     <p>{"In here you'll find some quick demos to get you started!"}</p>
                 </div>
-                <Ferris />
+                <Ferris class="max-h-64" />
             </div>
         </div>
     }
