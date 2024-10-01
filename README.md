@@ -81,7 +81,7 @@ Required environment variables, these can be stored in a .env file at the top le
 # Base URL for the frontend to communicate with the API, by default TLS is not enabled and will require you to implement
 BASE_URL=http://localhost:3001
 # Database URL, SQLx will infer the database type by URL if not specifying with package feature
-DATABASEURL=
+DATABASE_URL=jdbc:postgresql://localhost:5432/
 # 16 byte salt
 PASSWORD_SALT=THISISABADSALT!!
 # length in seconds the auth token with access information should live, keep it very short
