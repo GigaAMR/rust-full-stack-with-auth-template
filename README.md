@@ -1,4 +1,4 @@
-# rust-yew-axum-tauri-desktop template
+# rust-full-stack-with-auth-template
 
 This template is built using Yew, Tailwinds, Axum, Sqlx, and Tauri.
 
